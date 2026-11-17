@@ -1,87 +1,73 @@
 # ERP de Carregadores Elétricos
 
-Este projeto consiste em um sistema desenvolvido em Python para gerenciar carregadores elétricos e suas ordens de serviço. A proposta é aplicar conceitos de ERP (Enterprise Resource Planning, ou sistema integrado de gestão empresarial) ao cadastro de equipamentos, à organização dos atendimentos e ao acompanhamento dos serviços realizados.
+Sistema em Python (terminal) para gerenciar carregadores elétricos e suas ordens de serviço: cadastro, consulta, alteração e remoção de registros, fila de atendimento por prioridade, histórico com desfazer e relatórios.
 
-O programa funciona pelo terminal, utilizando menus interativos para cadastrar registros, consultar informações, atender ordens por prioridade e gerar relatórios.
+O projeto tem duas versões, mantidas lado a lado para comparar o desempenho:
 
-## Funcionalidades
+| Versão | Arquivo | Estruturas principais |
+|---|---|---|
+| Parte 1 | [`parte1/TDE_parte1.py`](parte1/TDE_parte1.py) | Listas, busca linear, Insertion Sort |
+| Parte 2 (otimizada) | [`parte2/TDE_parte2.py`](parte2/TDE_parte2.py) | Árvore AVL, percursos, busca na árvore, Merge Sort |
 
-- Cadastro, consulta, alteração e remoção de carregadores;
-- Registro do nome, local de instalação e potência de cada carregador;
-- Cadastro e consulta de ordens de serviço vinculadas aos carregadores;
-- Alteração e remoção de ordens pendentes;
-- Classificação das ordens nas prioridades crítica, alta e normal;
-- Atendimento da próxima ordem conforme sua prioridade;
-- Histórico dos serviços concluídos;
-- Opção para desfazer o último atendimento;
-- Filtragem de ordens pelo status;
-- Exibição da fila na sequência de atendimento;
-- Listagem de carregadores ordenados por potência;
-- Consulta da quantidade de registros cadastrados.
-
-## Tecnologias e conceitos utilizados
-
-- Linguagem Python;
-- Listas e dicionários;
-- Pilha para o histórico de atendimentos;
-- Fila de prioridade para organizar as ordens;
-- Busca linear implementada manualmente;
-- Insertion Sort implementado manualmente;
-- Funções, estruturas condicionais e laços de repetição;
-- Validação de dados inseridos pelo usuário.
-
-## Organização dos atendimentos
-
-As ordens de serviço recebem uma prioridade no momento do cadastro:
-
-- **1 — Crítica:** atendida primeiro;
-- **2 — Alta:** atendida após as ordens críticas;
-- **3 — Normal:** atendida após as ordens de maior prioridade.
-
-Quando duas ordens possuem a mesma prioridade, o sistema mantém a ordem de chegada. Ao concluir um atendimento, a ordem é retirada da fila e adicionada ao histórico. A opção de desfazer utiliza o comportamento de uma pilha: somente o atendimento mais recente é revertido.
-
-## Busca e ordenação
-
-A consulta por código utiliza busca linear, percorrendo os registros até encontrar o item solicitado. Esse algoritmo possui melhor caso **O(1)** e pior caso **O(n)**.
-
-O relatório de carregadores por potência utiliza Insertion Sort para apresentar os equipamentos em ordem decrescente. A ordenação é realizada sobre uma cópia da lista, preservando a ordem original dos cadastros. Seu melhor caso é **O(n)** e seu pior caso é **O(n²)**.
-
-A fila de prioridade é representada por uma lista. Para atender a próxima ordem, o programa percorre os elementos e identifica a maior prioridade, com complexidade **O(n)**.
-
-## Regras e validações
-
-O sistema exige nome e local de instalação para cadastrar um carregador, além de uma potência positiva e finita. Para cadastrar uma ordem, é necessário informar um carregador existente, uma descrição e uma prioridade válida.
-
-Carregadores com ordens associadas não podem ser removidos. Ordens concluídas também não podem ser alteradas ou excluídas pelas operações de cadastro; o último atendimento pode ser revertido pela opção de desfazer.
+Só a biblioteca padrão do Python 3 é usada, e todas as estruturas e algoritmos são implementados manualmente.
 
 ## Como executar
 
-É necessário ter Python 3 instalado. O projeto utiliza apenas a biblioteca padrão da linguagem, sem dependências externas.
-
-Na pasta em que está o arquivo, execute:
-
 ```bash
-python TDE.py
+python parte2/TDE_parte2.py   # versão otimizada
+python parte1/TDE_parte1.py   # versão original
 ```
 
-Após iniciar o programa, cadastre um carregador pela opção **2** e crie uma ordem de serviço pela opção **6**. Utilize a opção **10** para atender a próxima ordem e a opção **12** para acessar os relatórios.
+Cadastre um carregador (opção **2**), crie uma ordem (opção **6**), atenda a próxima (opção **10**) e veja os relatórios (opção **12**).
 
-## Objetivo do projeto
+## Funcionalidades
 
-O objetivo é aplicar algoritmos e estruturas de dados em um contexto prático de gestão de carregadores elétricos. O sistema reúne operações de cadastro, consulta, alteração e remoção, além de priorização de serviços, histórico reversível e geração de relatórios.
+- Cadastro, consulta, alteração e remoção de carregadores (nome, local, potência em kW);
+- Cadastro, consulta, alteração e remoção de ordens de serviço pendentes;
+- Prioridades: 1 (crítica), 2 (alta) e 3 (normal), com ordem de chegada no empate;
+- Atendimento da próxima ordem e histórico em pilha, com desfazer do último atendimento;
+- Relatórios: listagens, filtro por status, fila de prioridade, histórico e carregadores por potência;
+- Validação das entradas. Um carregador com ordens associadas não pode ser removido.
+
+## Parte 2: o que foi otimizado
+
+- **Árvore AVL** (balanceada, manual) como armazenamento principal de carregadores, ordens e da fila de prioridade. Inserir, remover e buscar custam O(log n) no pior caso.
+- **Travessias** em ordem (listagens ordenadas e fila), pré-ordem e pós-ordem (relatórios 7 e 8 mostram os carregadores e a altura da árvore).
+- **Busca** binária manual sobre a árvore, por código.
+- **Merge Sort** (divisão e conquista, estável) no relatório por potência: O(n log n), contra O(n²) do Insertion Sort.
+- **Otimização extra:** cada carregador guarda a quantidade de ordens associadas (a checagem de remoção passa de O(m) para O(1)), e o relatório por potência fica em cache até que um carregador seja cadastrado, alterado ou removido.
+
+### Complexidade
+
+| Operação | Parte 1 | Parte 2 |
+|---|---|---|
+| Buscar por código | O(n) | O(log n) |
+| Atender próxima ordem | O(n) | O(log n) |
+| Mostrar a fila na ordem de atendimento | O(n²) | O(n) |
+| Relatório por potência | O(n²) | O(n log n) (O(1) com cache) |
+| Carregador tem ordens? | O(m) | O(1) |
+| Cadastrar ordem | O(1) | O(log n) |
+
+## Desempenho
+
+O arquivo [`parte2/benchmark.py`](parte2/benchmark.py) roda testes de corretude (invariantes da AVL, percursos, Merge Sort contra `sorted` e equivalência da fila com a Parte 1) e compara as duas versões. Resultado completo em [`parte2/resultados_benchmark.md`](parte2/resultados_benchmark.md).
+
+Com n = 8000 (mediana de 5 execuções):
+
+| Operação | Parte 1 | Parte 2 |
+|---|---:|---:|
+| 1000 buscas por código | 247 ms | 0,6 ms |
+| Ordenar por potência (entrada aleatória) | 1973 ms | 17 ms |
+| Atender todas as ordens | 2416 ms | 43 ms |
+| Checar "carregador tem ordens?" (200 consultas) | 64 ms | 0,04 ms |
+| Cadastrar 8000 ordens | 2 ms | 123 ms |
+
+A Parte 2 perde no cadastro, porque a AVL paga o balanceamento a cada inserção, e na ordenação de uma entrada já decrescente, em que o Insertion Sort faz uma única passada.
+
+```bash
+python parte2/benchmark.py
+```
 
 ## Contexto acadêmico
 
-Este projeto foi desenvolvido como **Trabalho Discente Efetivo (TDE), Parte 1**, da disciplina **Algoritmos e Estruturas de Dados**, referente ao período **2026.2**, no **UNIFAN — Centro Universitário Nobre**.
-
-O trabalho propõe o desenvolvimento de um ERP com listas, pilha, fila de prioridade e algoritmos de busca e ordenação implementados manualmente.
-
-## Observações
-
-Os dados são armazenados apenas na memória durante a execução. Ao encerrar o programa, os cadastros e o histórico são perdidos.
-
-O código está organizado em funções e contém comentários sobre o funcionamento das operações e a complexidade dos algoritmos.
-
-## Status do projeto
-
-Versão acadêmica com interface de terminal. Entre as possibilidades de evolução estão a persistência dos dados em arquivos ou banco de dados, a organização do código em módulos e a criação de uma interface gráfica.
+Trabalho Discente Efetivo (TDE) da disciplina **Algoritmos e Estruturas de Dados** (2026.2), no **UNIFAN — Centro Universitário Nobre**. A Parte 1 reúne listas, pilha, fila de prioridade e busca e ordenação manuais. A Parte 2 otimiza o sistema com árvore balanceada, travessias, busca, divisão e conquista e medição de desempenho.
